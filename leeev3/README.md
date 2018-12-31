@@ -1,0 +1,1 @@
+This is where we keep the code that is _not_ specific to a single robot, but rather worker code we can reuse aplenty.
