@@ -5,6 +5,16 @@ class Map(object):
     def get_color_at_position(self):
         pass
 
+    @staticmethod
+    def dummy_function():
+        from PIL import Image
+        im = Image.open('/tmp/small88.png')  # Can be many different formats.
+        pix = im.load()
+        x = 2
+        y = 3
+        print(im.size)  # Get the width and hight of the image for iterating over
+        print(pix[x, y])  # Get the RGBA Value of the a pixel of an image
+
 
 class MapFromPicture(Map):
     """
