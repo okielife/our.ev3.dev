@@ -1,2 +1,2 @@
 # our.ev3.dev
-A library of ev3 stuff
+A library of ev3 stuff for us to use.
