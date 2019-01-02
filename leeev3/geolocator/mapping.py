@@ -1,19 +1,16 @@
+from PIL import Image
+
+
 class Map(object):
     """
     Base class of a rectangular world map for the robot
     """
-    def get_color_at_position(self):
-        pass
 
-    @staticmethod
-    def dummy_function():
-        from PIL import Image
-        im = Image.open('/tmp/small88.png')  # Can be many different formats.
-        pix = im.load()
-        x = 2
-        y = 3
-        print(im.size)  # Get the width and hight of the image for iterating over
-        print(pix[x, y])  # Get the RGBA Value of the a pixel of an image
+    def get_color_at_pixel_position(self, x: int, y: int):
+        raise NotImplementedError('Must override get_color_at_pixel_position in derived classes')
+
+    def get_color_at_physical_position(self, x: float, y: float):
+        raise NotImplementedError('Must override get_color_at_physical_position in derived classes')
 
 
 class MapFromPicture(Map):
@@ -22,7 +19,29 @@ class MapFromPicture(Map):
     It would be *really* great to know if this is good enough.
     I think we need to find something that we have both in a printed state and also in a digital state and try it out
     """
-    pass
+
+    def __init__(self, path_to_image: str, actual_width: float, actual_height: float):
+        """
+        
+        :param path_to_image: File path to image
+        :param actual_width: Physical width of playing map in real life, in meters
+        :param actual_height: Physical height of playing map in real life, in meters
+        """
+        self.image_path = path_to_image
+        self.image = Image.open(path_to_image)
+        self.width_pixels = self.image.size[0]
+        self.height_pixels = self.image.size[1]
+        self.pixels = self.image.load()
+        self.x_scale = self.width_pixels / actual_width
+        self.y_scale = self.height_pixels / actual_height
+
+    def get_color_at_pixel_position(self, x: int, y: int):
+        return self.pixels[x, y]
+
+    def get_color_at_physical_position(self, x: float, y: float):
+        x_to_use = min(int(x * self.x_scale), self.width_pixels-1)
+        y_to_use = min(int(y * self.y_scale), self.height_pixels-1)
+        return self.pixels[x_to_use, y_to_use]
 
 
 class MapFromSensors(Map):
@@ -41,4 +60,9 @@ class MapFromSensors(Map):
           edges of the table, etc.  Maybe have to just scan using the color sensor first without the robot so we can
           get the entirety of the table.
     """
-    pass
+
+    def get_color_at_physical_position(self, x, y):
+        pass
+
+    def get_color_at_pixel_position(self, x, y):
+        pass
