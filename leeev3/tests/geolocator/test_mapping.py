@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from leeev3.geolocator.mapping import Map, MapFromPicture
+from leeev3.geolocator.mapping import Map, MapFromPicture, MapFromData
 
 
 class TestAbstractMap(unittest.TestCase):
@@ -38,3 +38,28 @@ class TestMapFromPicture(unittest.TestCase):
 
     def test_out_of_range_dimension(self):
         pass
+
+
+class TestMapFromData(unittest.TestCase):
+
+    def test_stretched_valid_map(self):
+        pixel_data = [
+            [(1, 1, 1), (2, 2, 2), (3, 3, 3), (4, 4, 4)],
+            [(5, 5, 5), (6, 6, 6), (7, 7, 7), (8, 8, 8)],
+            [(8, 8, 8), (7, 7, 7), (6, 6, 6), (5, 5, 5)],
+            [(4, 4, 4), (3, 3, 3), (2, 2, 2), (1, 1, 1)],
+        ]
+        mfd = MapFromData(pixel_data, actual_map_width=2, actual_map_height=4)
+        self.assertEqual((7, 7, 7), mfd.get_color_at_pixel_position(2, 1))
+        self.assertEqual((5, 5, 5), mfd.get_color_at_physical_position(x=1.75, y=2.5))
+
+    def test_bad_map_data(self):
+        with self.assertRaises(Exception):
+            # noinspection PyTypeChecker
+            MapFromData(8, 1, 2)
+        with self.assertRaises(Exception):
+            MapFromData([8, 0, 2], 2, 1)
+        with self.assertRaises(Exception):
+            MapFromData([[(1, 1, 1), (1, 1, 1)], [(1, 1, 1)]], 3, 1)
+        with self.assertRaises(Exception):
+            MapFromData([[1]], 1, 1)

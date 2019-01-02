@@ -1,5 +1,6 @@
 from leeev3.geolocator.mapping import Map
-from leeev3.geolocator.location import Location
+# from leeev3.geolocator.location import Location
+# flake8: noqa
 
 
 class InitialLocator(object):

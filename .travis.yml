@@ -1,0 +1,12 @@
+language: python
+os: linux
+dist: xenial
+matrix:
+  include:
+    - name: Python Unit Tests
+      install: pip install -r requirements.txt
+      script: coverage run setup.py test
+      after_success: coveralls
+    - name: Flake8 Style Checks
+      install: pip install flake8
+      script: flake8 leeev3
