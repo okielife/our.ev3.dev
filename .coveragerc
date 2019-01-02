@@ -4,3 +4,4 @@ omit =
         .tox/*
         */.pyenv/*
         *venv*
+        *virtualenv*
