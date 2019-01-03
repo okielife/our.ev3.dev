@@ -3,7 +3,7 @@ from leeev3.geolocator.mapping import Map
 # flake8: noqa
 
 
-class InitialLocator(object):
+class LocatorA(object):
     """
     This class is used to provide location services to a robot.
     For right now it is assuming we have two color sensors located transverse to the robot "forward"
