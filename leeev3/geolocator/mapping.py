@@ -82,12 +82,10 @@ class MapFromPicture(Map):
             x_to_use = min(int(point[0] * self.x_scale), self.width_pixels-1)
             y_to_use = min(int(point[1] * self.y_scale), self.height_pixels-1)
             this_pixel = self.pixels[x_to_use, y_to_use]
-            totals[0] += this_pixel[0]
-            totals[1] += this_pixel[1]
-            totals[2] += this_pixel[2]
-        totals[0] /= len(points_to_check)
-        totals[1] /= len(points_to_check)
-        totals[2] /= len(points_to_check)
+            for i in range(3):
+                totals[i] += this_pixel[i]
+        for i in range(3):
+            totals[i] /= len(points_to_check)
         return tuple(totals)
 
 
@@ -144,13 +142,23 @@ class MapFromData(Map):
         self.pixels = map_data
         self.width_pixels = pixels_wide
         self.height_pixels = pixels_tall
-        self.x_scale = self.width_pixels / actual_map_width
-        self.y_scale = self.height_pixels / actual_map_height
+        self.actual_map_width = actual_map_width
+        self.actual_map_height = actual_map_height
+        self.x_scale = self.width_pixels / self.actual_map_width
+        self.y_scale = self.height_pixels / self.actual_map_height
 
     def get_color_at_pixel_position(self, x: int, y: int):
         return self.pixels[y][x]
 
     def get_color_at_physical_position(self, x: float, y: float):
-        x_to_use = min(int(x * self.x_scale), self.width_pixels - 1)
-        y_to_use = min(int(y * self.y_scale), self.height_pixels - 1)
-        return self.pixels[y_to_use][x_to_use]
+        points_to_check = Map.sample_physical_positions(x, y, self.actual_map_width, self.actual_map_height)
+        totals = [0, 0, 0]
+        for point in points_to_check:
+            x_to_use = min(int(point[0] * self.x_scale), self.width_pixels-1)
+            y_to_use = min(int(point[1] * self.y_scale), self.height_pixels-1)
+            this_pixel = self.pixels[y_to_use][x_to_use]
+            for i in range(3):
+                totals[i] += this_pixel[i]
+        for i in range(3):
+            totals[i] /= len(points_to_check)
+        return tuple(totals)

@@ -94,3 +94,7 @@ class TestMapFromData(unittest.TestCase):
             MapFromData([[(1, 1, 1), (1, 1, 1)], [(1, 1, 1)]], 3, 1)
         with self.assertRaises(Exception):
             MapFromData([[1]], 1, 1)
+
+    def test_super_detailed_sampling_check(self):
+        # TODO: Do a test that shows the data being sampled across pixels
+        pass
