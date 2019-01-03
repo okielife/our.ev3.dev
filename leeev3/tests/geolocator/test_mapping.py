@@ -4,7 +4,7 @@ import unittest
 from leeev3.geolocator.mapping import Map, MapFromPicture, MapFromData
 
 
-class TestAbstractMap(unittest.TestCase):
+class TestBaseMap(unittest.TestCase):
 
     def test_abstract_methods(self):
         m = Map()
@@ -12,6 +12,37 @@ class TestAbstractMap(unittest.TestCase):
             m.get_color_at_pixel_position(0, 0)
         with self.assertRaises(NotImplementedError):
             m.get_color_at_physical_position(0.0, 0.0)
+
+    def test_sampling_points(self):
+        # first an easy one, the points right in the middle
+        points = Map.sample_physical_positions(1, 1, 2, 2)
+        self.assertEqual(4, len(points))
+        self.assertEqual(2, len([1 for p in points if p[0] > 1]))
+        self.assertEqual(2, len([1 for p in points if p[0] < 1]))
+        self.assertEqual(2, len([1 for p in points if p[1] > 1]))
+        self.assertEqual(2, len([1 for p in points if p[1] < 1]))
+        # then how about each direction pushed off of the board (one at a time to catch each corner case)
+        points = Map.sample_physical_positions(1.999, 1, 2, 2)
+        self.assertEqual(4, len(points))
+        self.assertEqual(2, len([1 for p in points if p[0] == 2]))  # should have two pushed up against the right side
+        points = Map.sample_physical_positions(0.001, 1, 2, 2)
+        self.assertEqual(4, len(points))
+        self.assertEqual(2, len([1 for p in points if p[0] == 0]))  # should have two pushed up against the left side
+        points = Map.sample_physical_positions(1, 1.999, 2, 2)
+        self.assertEqual(4, len(points))
+        self.assertEqual(2, len([1 for p in points if p[1] == 2]))  # should have two pushed up against the bottom (y=2)
+        points = Map.sample_physical_positions(1, 0.001, 2, 2)
+        self.assertEqual(4, len(points))
+        self.assertEqual(2, len([1 for p in points if p[1] == 0]))  # should have two pushed up against the top (y=0)
+        # now how about just completely off the board in any direction
+        with self.assertRaises(Exception):
+            Map.sample_physical_positions(-1, 1, 2, 2)
+        with self.assertRaises(Exception):
+            Map.sample_physical_positions(3, 1, 2, 2)
+        with self.assertRaises(Exception):
+            Map.sample_physical_positions(1, -1, 2, 2)
+        with self.assertRaises(Exception):
+            Map.sample_physical_positions(1, 3, 2, 2)
 
 
 class TestMapFromPicture(unittest.TestCase):

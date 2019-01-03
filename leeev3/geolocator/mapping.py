@@ -1,6 +1,8 @@
 from PIL import Image
 from typing import List
 
+from leeev3.geolocator.tolerances import Tolerances
+
 
 class Map(object):
     """
@@ -12,6 +14,38 @@ class Map(object):
 
     def get_color_at_physical_position(self, x: float, y: float):
         raise NotImplementedError('Must override get_color_at_physical_position in derived classes')
+
+    @staticmethod
+    def sample_physical_positions(physical_x: float, physical_y: float, max_physical_x: float, max_physical_y: float):
+        if physical_x < 0 or physical_x > max_physical_x or physical_y < 0 or physical_y > max_physical_y:
+            raise Exception(
+                'Mapping issue, attempted to sample map positions at out of range point: (%s, %s)' % (
+                    physical_x, physical_y
+                )
+            )
+        x_spots_to_check = []
+        y_spots_to_check = []
+        if physical_x >= Tolerances.SamplingEpsilon:
+            x_spots_to_check.append(physical_x - Tolerances.SamplingEpsilon)
+        else:
+            x_spots_to_check.append(0.0)
+        if physical_x <= max_physical_x - Tolerances.SamplingEpsilon:
+            x_spots_to_check.append(physical_x + Tolerances.SamplingEpsilon)
+        else:
+            x_spots_to_check.append(max_physical_x)
+        if physical_y >= Tolerances.SamplingEpsilon:
+            y_spots_to_check.append(physical_y - Tolerances.SamplingEpsilon)
+        else:
+            y_spots_to_check.append(0.0)
+        if physical_y <= max_physical_y - Tolerances.SamplingEpsilon:
+            y_spots_to_check.append(physical_y + Tolerances.SamplingEpsilon)
+        else:
+            y_spots_to_check.append(max_physical_y)
+        final_coordinate_set = []
+        for x in x_spots_to_check:
+            for y in y_spots_to_check:
+                final_coordinate_set.append((x, y))
+        return final_coordinate_set
 
 
 class MapFromPicture(Map):
