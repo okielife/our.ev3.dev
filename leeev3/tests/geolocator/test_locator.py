@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from leeev3.geolocator.locator import LocatorA
+# from leeev3.geolocator.locator import LocatorA
 from leeev3.geolocator.mapping import MapFromPicture
 
 
