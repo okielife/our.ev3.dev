@@ -5,7 +5,7 @@ from leeev3.geolocator.locator import LocatorA
 from leeev3.geolocator.mapping import MapFromPicture
 
 
-color_names_from_rgb = {
+color_name_from_rgb = {
     '(0, 0, 0)': 'blk',
     '(255, 0, 0)': 'red',
     '(0, 255, 0)': 'grn',
@@ -15,6 +15,7 @@ color_names_from_rgb = {
     '(255, 255, 0)': 'ylo',
     '(255, 255, 255)': 'wht',
 }
+color_rgb_from_name = {v: k for k, v in color_name_from_rgb.items()}
 
 
 class TestLocatorA(unittest.TestCase):
@@ -54,5 +55,10 @@ class TestLocatorA(unittest.TestCase):
         # The robot will then walk forward 4 cm -- at this location, the robot will be seeing left=cyn and right=red
         m = MapFromPicture(path_to_image=self.image_to_use, actual_map_width=0.32, actual_map_height=0.32)
         locator = LocatorA(world_map=m, color_sensor_separation=0.06)
-        black_spots = locator.get_possible_locations((0, 0, 0))
-        a = 1
+        locator.get_location_and_angle(
+            left_color_1=color_rgb_from_name['grn'], right_color_1=color_rgb_from_name['red'],
+            left_color_2=color_rgb_from_name['cyn'], right_color_2=color_rgb_from_name['red'],
+            distance_moved=0.04
+        )
+        # black_spots = locator.get_possible_locations((0, 0, 0))
+        # a = 1
