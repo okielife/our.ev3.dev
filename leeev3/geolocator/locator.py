@@ -1,4 +1,7 @@
+from typing import List
+
 from leeev3.geolocator.mapping import Map
+from leeev3.geolocator.tolerances import Tolerances
 # from leeev3.geolocator.location import Location
 # flake8: noqa
 
@@ -91,7 +94,11 @@ class LocatorA(object):
         self.world_map = world_map
         self.sensor_data = color_sensor_separation
 
-    def _get_possible_locations(self, color_sensed_value):
+    @staticmethod
+    def are_colors_equal(color_a: tuple, color_b: tuple) -> bool:
+        return all([abs(color_a[i] - color_b[i]) < Tolerances.ColorTolerance for i in range(3)])
+
+    def get_possible_locations(self, color_sensed_value: tuple) -> List:
         """
         Gets a list of possible positions for a single color on the map, over a preconfigured grid interval
 
@@ -103,7 +110,15 @@ class LocatorA(object):
         :param color_sensed_value:
         :return:
         """
-        pass
+        matching_points = []
+        for x_number in range(Tolerances.NumberGridSamples):
+            for y_number in range(Tolerances.NumberGridSamples):
+                x_dimension = (x_number/Tolerances.NumberGridSamples) * self.world_map.actual_map_width
+                y_dimension = (y_number / Tolerances.NumberGridSamples) * self.world_map.actual_map_height
+                map_color_at_point = self.world_map.get_color_at_physical_position(x_dimension, y_dimension)
+                if self.are_colors_equal(color_sensed_value, map_color_at_point):
+                    matching_points.append([x_dimension, y_dimension])
+        return matching_points
 
     def _get_possible_position_vectors(self, left_color, right_color):
         """

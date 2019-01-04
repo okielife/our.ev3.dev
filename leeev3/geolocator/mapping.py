@@ -8,6 +8,9 @@ class Map(object):
     """
     Base class of a rectangular world map for the robot
     """
+    def __init__(self):
+        self.actual_map_width = None
+        self.actual_map_height = None
 
     def get_color_at_pixel_position(self, x: int, y: int):
         raise NotImplementedError('Must override get_color_at_pixel_position in derived classes')
@@ -62,6 +65,7 @@ class MapFromPicture(Map):
         :param actual_map_width: Physical width of playing map in real life, in meters
         :param actual_map_height: Physical height of playing map in real life, in meters
         """
+        super().__init__()
         self.image_path = path_to_image
         self.image = Image.open(path_to_image)
         self.width_pixels = self.image.size[0]
@@ -120,6 +124,7 @@ class MapFromData(Map):
     """
 
     def __init__(self, map_data: List, actual_map_width: float, actual_map_height: float):
+        super().__init__()
         if not isinstance(map_data, list):
             raise Exception('Bad type for map_data, must be a list of rows, which are lists of columns of RGB data')
         pixels_wide = None

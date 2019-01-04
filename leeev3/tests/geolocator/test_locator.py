@@ -1,7 +1,7 @@
 import os
 import unittest
 
-# from leeev3.geolocator.locator import LocatorA
+from leeev3.geolocator.locator import LocatorA
 from leeev3.geolocator.mapping import MapFromPicture
 
 
@@ -44,12 +44,15 @@ class TestLocatorA(unittest.TestCase):
         self.image_to_use = os.path.join(self.resource_dir, 'colorful16x16.png')
 
     def test_a(self):
-        m = MapFromPicture(self.image_to_use, 16, 16)
-        pixel_string = ''
-        for y in range(16):
-            for x in range(16):
-                # pixel_string += str(m.get_color_at_pixel_position(x, y)) + ', '
-                pixel_string += color_names_from_rgb[str(m.get_color_at_pixel_position(x, y))] + ', '
-            pixel_string += '\n'
-        print(pixel_string)
-        # locator = LocatorA(m, 0.05)
+        # Ultimately what we want from this test is to "drop" the robot on a specific location, and move it a certain
+        # amount, and have the code be able to identify where the robot is (or most likely is), and which direction it
+        # is facing.
+        # We will use the colorful16x16 image, scaled up to 32cm x 32cm
+        # The robot will have a distance between the left/right color sensors of 6cm
+        # Don't tell the library code, but ssh: The robot will be moving from left to right, with the right sensor
+        # in the middle of row 10, column 2 -- at this location, the robot will be seeing left=grn and right=red
+        # The robot will then walk forward 4 cm -- at this location, the robot will be seeing left=cyn and right=red
+        m = MapFromPicture(path_to_image=self.image_to_use, actual_map_width=0.32, actual_map_height=0.32)
+        locator = LocatorA(world_map=m, color_sensor_separation=0.06)
+        black_spots = locator.get_possible_locations((0, 0, 0))
+        a = 1
