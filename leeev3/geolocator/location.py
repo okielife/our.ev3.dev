@@ -34,7 +34,7 @@ class Vector(object):
         else:
             raise Exception('Bad input argument combination in Vector constructor')
 
-    def get_end_xy_at_radius(self, radius):
+    def get_end_xy_at_radius(self, radius: float):
         x2 = self.x + radius * math.cos(self.angle)
         y2 = self.y + radius * math.sin(self.angle)
         return [x2, y2]

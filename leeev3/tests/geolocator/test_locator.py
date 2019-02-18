@@ -5,17 +5,17 @@ from leeev3.geolocator.locator import LocatorA
 from leeev3.geolocator.mapping import MapFromPicture
 
 
-color_name_from_rgb = {
-    '(0, 0, 0)': 'blk',
-    '(255, 0, 0)': 'red',
-    '(0, 255, 0)': 'grn',
-    '(0, 0, 255)': 'blu',
-    '(0, 255, 255)': 'cyn',
-    '(255, 0, 255)': 'pnk',
-    '(255, 255, 0)': 'ylo',
-    '(255, 255, 255)': 'wht',
+color_rgb_from_name = {
+    'blk': (0, 0, 0),
+    'red': (255, 0, 0),
+    'grn': (0, 255, 0),
+    'blu': (0, 0, 255),
+    'cyn': (0, 255, 255),
+    'pnk': (255, 0, 255),
+    'ylo': (255, 255, 0),
+    'wht': (255, 255, 255),
 }
-color_rgb_from_name = {v: k for k, v in color_name_from_rgb.items()}
+color_name_from_rgb = {v: k for k, v in color_rgb_from_name.items()}
 
 
 class TestLocatorA(unittest.TestCase):
@@ -60,5 +60,17 @@ class TestLocatorA(unittest.TestCase):
             left_color_2=color_rgb_from_name['cyn'], right_color_2=color_rgb_from_name['red'],
             distance_moved=0.04
         )
+        # let's try to find all the possible vectors from yellow to white.  With this spacing there should be at least
+        # one, from (0, 0), straight down to (0, 3)
+        pairs = locator.get_possible_position_vectors(
+            left_color=color_rgb_from_name['ylo'], right_color=color_rgb_from_name['wht']
+        )
+        # let's try to track down the ones from 0, 0 to 0, 3, there could be several but should be at least one
+        pairs_starting_in_row_0_column_0 = [
+            pair for pair in pairs if 0 < pair[0][0] < 0.02 and 0 < pair[0][1] < 0.02
+        ]
+        pairs_also_ending_in_row_3_column_0 = [
+            pair for pair in pairs_starting_in_row_0_column_0 if 0 < pair[1][0] < 0.02 and 0.06 < pair[1][1] < 0.08
+        ]
         # black_spots = locator.get_possible_locations((0, 0, 0))
-        # a = 1
+        self.assertGreaterEqual(len(pairs_also_ending_in_row_3_column_0), 1)

@@ -1,8 +1,9 @@
+import math
 from typing import List
 
 from leeev3.geolocator.mapping import Map
 from leeev3.geolocator.tolerances import Tolerances
-# from leeev3.geolocator.location import Location
+from leeev3.geolocator.location import Location
 # flake8: noqa
 
 
@@ -92,11 +93,19 @@ class LocatorA(object):
         :param color_sensor_separation: The distance the color sensors are away from each other, in cm
         """
         self.world_map = world_map
-        self.sensor_data = color_sensor_separation
+        self.sensor_distance = color_sensor_separation
 
     @staticmethod
     def are_colors_equal(color_a: tuple, color_b: tuple) -> bool:
         return all([abs(color_a[i] - color_b[i]) < Tolerances.ColorTolerance for i in range(3)])
+
+    @staticmethod
+    def distance_between_location_tuples(location_1: tuple, location_2: tuple):
+        return math.sqrt((location_1[0] - location_2[0]) ** 2 + (location_1[1] - location_2[1]) ** 2)
+
+    def is_distance_equal(self, point_1: tuple, point_2: tuple):
+        distance = LocatorA.distance_between_location_tuples(point_1, point_2)
+        return abs(distance - self.sensor_distance) < Tolerances.TwoPointsEqualDistance
 
     def get_possible_locations(self, color_sensed_value: tuple) -> List:
         """
@@ -120,7 +129,7 @@ class LocatorA(object):
                     matching_points.append([x_dimension, y_dimension])
         return matching_points
 
-    def _get_possible_position_vectors(self, left_color, right_color):
+    def get_possible_position_vectors(self, left_color, right_color):
         """
         Gets a list of possible position/angles given a pair of color sensed values
 
@@ -128,6 +137,14 @@ class LocatorA(object):
         :param right_color:
         :return:
         """
+        possible_left_points = self.get_possible_locations(left_color)
+        possible_right_points = self.get_possible_locations(right_color)
+        possible_matches = []
+        for possible_left_point in possible_left_points:
+            for possible_right_point in possible_right_points:
+                if self.is_distance_equal(possible_left_point, possible_right_point):
+                    possible_matches.append((possible_left_point, possible_right_point))
+        return possible_matches
 
     def get_location_and_angle(self, left_color_1, right_color_1, left_color_2, right_color_2, distance_moved):
         """
